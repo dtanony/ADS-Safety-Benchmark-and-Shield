@@ -4,12 +4,12 @@
 This repository contains the code and data for the paper "Benchmark-Driven Safety Evaluation and Shielding of Autonomous Driving Systems."
 This repository mainly includes:
 
-1. Safety reference benchmarks to evaluate ADSs for oncoming traffic scenarios. Check folder `safety-benchmarks` for more details. Code to reproduce the benchmarks and animations visualizing the movements of vehicles for each concrete scenario are provided in the folder.
+1. Safety reference benchmarks to evaluate ADSs for oncoming traffic scenarios. Check folder [safety-benchmarks](safety-benchmarks) for more details. Code to reproduce the benchmarks and animations visualizing the movements of vehicles for each concrete scenario are provided in the folder.
 
-2. Experiment results of evaluating [Autoware version 0.41.2](https://github.com/dtanony/Autoware0412) (released February 20, 2025) against our safety reference benchmarks. Check folder `baseline-results` for more details.
+2. Experiment results of evaluating [Autoware version 0.41.2](https://github.com/dtanony/Autoware0412) (released February 20, 2025) against our safety reference benchmarks (folder [baseline-results](baseline-results)).
 Trace data, camera videos, and input scripts specifying all scenarios are provided in the folder.
 
-3. Experiement results with Autoware when integrating our safety shield. Check folder `shielding-results` for more details.
+3. Experiement results with Autoware when integrating our safety shield (folder [shielding-results](shielding-results)).
 
 \
 <img src="fig-tool-chain.png" alt="Tool chain" width="500"/>
@@ -78,3 +78,8 @@ For example, to execute U-turn scenarios, run the following command in another t
 python client.py ADS-Safety-Benchmark-and-Shield/safety-benchmarks/Scripts/Uturn/
 ```
 Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to <path-to-folder-to-save-traces> with incremental numbering.
+
+### Experiments with original Autoware
+
+### Experiments with shielding
+
