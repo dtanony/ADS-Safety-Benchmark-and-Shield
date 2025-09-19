@@ -44,6 +44,19 @@ The following is camera footage of one such collision (part of [swerve_sim6_foot
 
 https://github.com/user-attachments/assets/3325c90d-d321-4931-9670-fa37f9aac2a1
 
+As can be observed from the video, the braking applied was weak, even in the final moments.
+
+### Improved Performance with Shield
+
+Experiments demonstrated that integrating Autoware with the shield successfully prevented all collisions observed in the baseline experiments.
+In the collision U-turn scenario shown above, the following camera footage illustrates the non-collision outcome with the shield enabled (part of [uturn_sim7_footage.mp4](/shielding-results/u-turn/data/adjacent-lane/uturn_sim7_footage.mp4)).
+
+
+
+https://github.com/user-attachments/assets/306dcf24-c48b-410e-94b4-f374d348e787
+
+
+As can be seen, the collision was avoided.
 
 ### Experiment Replication
 To reproduce the experiment results with Autoware, please follow the following steps.
