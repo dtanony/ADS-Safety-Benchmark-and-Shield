@@ -42,6 +42,8 @@ Out of 27 scenarios conducted, eight collisions were observed.
 The following is camera footage of one such collision (part of [swerve_sim6_footage.mp4](/baseline-results/swerve/data/vo-15/swerve_sim6_footage.mp4)).
 
 
+https://github.com/user-attachments/assets/3325c90d-d321-4931-9670-fa37f9aac2a1
+
 
 ### Experiment Replication
 To reproduce the experiment results with Autoware, please follow the following steps.
