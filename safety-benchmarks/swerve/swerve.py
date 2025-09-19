@@ -1,8 +1,10 @@
+import argparse
+
 from common import *
 from matplotlib import pyplot as plt
 
 LANE_WIDTH = 3.5
-EXCEEDING_Y = 1.0
+NY = 1.8     # lateral offset of the swerve, see the paper
 SWERVE_DISTANCE = 2.0
 # assume a compact car
 WHEEL_BASE = 2.5
@@ -16,14 +18,14 @@ class SwerveEgo(Ego):
 
 class SwerveNPC(NPC):
     def __init__(self, position, vo, vy, size,
-                 exceeding_y=EXCEEDING_Y, swerve_distance=SWERVE_DISTANCE,
+                 ny=NY, swerve_distance=SWERVE_DISTANCE,
                  wheelbase=WHEEL_BASE):
         """
         :param position: center point of the car shape rectangle.
         :param vo:
         :param vy:
         :param size:
-        :param exceeding_y:
+        :param ny: lateral offset of the swerve, see the paper
         :param swerve_distance:
         Note that we maintain self.position as the center point between two back wheels
         """
@@ -35,7 +37,7 @@ class SwerveNPC(NPC):
         self.speed = vo
         self.vx = vx
         self.vy = vy
-        self.exceeding_y = exceeding_y
+        self.ny = ny
         self.swerve_distance = swerve_distance
         self.wheelbase = wheelbase
         self.angular_speed = 0.0
@@ -44,7 +46,6 @@ class SwerveNPC(NPC):
         self.wheel_to_bound = (self.size[0] - self.wheelbase) / 2
 
         self.waypoints = []
-        ny = LANE_WIDTH / 2 + self.exceeding_y - self.size[1] / 2
         self.waypoints.append(np.array(
             (self.position[0] - vx / vy * ny - self.wheel_to_bound - self.wheelbase, ny)
         ))
@@ -140,14 +141,14 @@ class SwerveSimulation(Simulation):
     def should_activate_AEB(self):
         return False
 
-def single_sim_exec(dx0, ve, vo,vy, exceeding_y,swerve_distance):
+def single_sim_exec(dx0, ve, vo,vy, ny,swerve_distance):
     sim_step = 0.025
     average_length = (ego_length + npc_length) / 2.0
 
     npc = SwerveNPC((dx0 + average_length, 0.0),
                     vo, vy,
                     (npc_length, npc_width),
-                    exceeding_y,swerve_distance)
+                    ny, swerve_distance)
 
     ego = SwerveEgo((0.0, LANE_WIDTH),
                     (ve,0.0),
@@ -160,10 +161,12 @@ def single_sim_exec(dx0, ve, vo,vy, exceeding_y,swerve_distance):
             return False
     return True
 
-def simulation():
-    ve = 40 / 3.6
-    vo = 15 / 3.6
-    exceeding_y = EXCEEDING_Y
+def simulation(ve,vo):
+    """
+    :param vo: NPC speed in m/s
+    :param ve: Ego speed in m/s
+    """
+    ny = NY
     swerve_distance = SWERVE_DISTANCE
 
     # red points: collisions
@@ -175,7 +178,7 @@ def simulation():
     vy = 0.6
     while vy <= 1.61:
         for dx in range(15, 56):
-            not_collision = single_sim_exec(dx, ve, vo,vy, exceeding_y, swerve_distance)
+            not_collision = single_sim_exec(dx, ve, vo,vy, ny, swerve_distance)
             if not_collision:
                 nc_x.append(dx), nc_y.append(vy)
             else:
@@ -188,7 +191,7 @@ def simulation():
     shape = ","
     colors = ['r', 'g', 'orange']
 
-    plt.figure(dpi=300, figsize=(10,4))
+    plt.figure(dpi=200, figsize=(8,3.8))
 
     # plotting points as a scatter plot
     plt.scatter(fc_x, fc_y, label="collision", color=colors[0], marker=shape, s=20)
@@ -198,12 +201,22 @@ def simulation():
     plt.xlabel('Longitudinal distance (dx0)')
     plt.ylabel('Lateral velocity (vy)')
     # plot title
-    plt.title(f've = {(int)(ve * 3.6)}, vo = {(int)(vo * 3.6)}, '
-              f'exceed_y = {exceeding_y}, '
-              f'swerve_dis = {swerve_distance}')
+    plt.title(f've = {(int)(ve * 3.6)}, vo = {(int)(vo * 3.6)}')
     # showing legend
-    plt.legend(bbox_to_anchor=(0.8, 0.9))
+    plt.legend(bbox_to_anchor=(0.8, 0.8))
     plt.show()
 
+def cli_parser():
+    parser = argparse.ArgumentParser(description='Simulation to Construct '
+                                                 'Safety reference benchmark for Swerve scenarios.')
+    parser.add_argument('-ve', type=int, default=20,
+                      help='AV Speed in km/h (default: 20)')
+    parser.add_argument('-vo', type=int, default=10,
+                      help='NPC Speed in km/h (default: 10)')
+    return parser
+
 if __name__ == '__main__':
-    simulation()
+    cli_args = cli_parser().parse_args()
+    ve = cli_args.ve / 3.6
+    vo = cli_args.vo / 3.6
+    simulation(ve,vo)
