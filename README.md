@@ -23,7 +23,7 @@ Other tools used in this work are available in separate repositories:
 
 - AWSIM-Script client library is available [here](https://github.com/dtanony/AWSIM-Script-Client). This library provides Python APIs to interact with the AWSIM-Labs simulator.
 
-- AW-RuntimeMonitor is available [here](https://github.com/dtanony/AW-Runtime-Monitor). This monitor essentially consists of two subcomponents:
+- AW-Runtime-Monitor is available [here](https://github.com/dtanony/AW-Runtime-Monitor). This monitor essentially consists of two subcomponents:
   - A trace recorder that logs the state (position, velocity, etc.) of the ego vehicle and other objects during simulation, camera videos, ADS internal states (e.g., perceived objects and control commands), etc.
   - A shield for the control module that checks the safety of issued control commands. If a command is unsafe, the shield activates AEB.
 
@@ -45,6 +45,46 @@ The following is camera footage of one such collision (part of [swerve_sim6_foot
 https://github.com/user-attachments/assets/3325c90d-d321-4931-9670-fa37f9aac2a1
 
 As can be observed from the video, the braking applied was weak, even in the final moments.
+
+### Collision Analysis
+Analyzing the traces of the collision cases, we found that perception accuracy and control actions are the two factors leading to collisions.
+Regarding the perception inaccuracy, Autoware often struggled to correctly anticipate the future travel paths of oncoming vehicles.
+
+#### U-turn scenarios
+For example, consider the U-turn scenario `uturn-30-15-1` with the following information:
+| **Script file** | **Trace file** | **AV Speed** | **NPC Speed** |
+|-----------------|----------------|--------------|---------------|
+| uturn-35-10-1   | uturn_sim7     | 35           | 10            |
+
+A collision occurred in this scenario. **1.5 seconds prior to impact**, 
+Autoware still failed to predict a realistic travel path for the oncoming vehicle. 
+As shown below, the predicted path lacked a U-turn shape and instead followed a diagonal trajectory crossing multiple lanes, eventually leaving the road.
+
+<img src="trace-analysis/assets/uturn-1500b.png" alt="Incorrect path" width="300"/>
+
+The green square represents the ego vehicle (with the arrow denoting its direction of travel).
+The blue polygon represents the perceived NPC, while the orange line denotes the predicted travel path.
+(As can be seen, Autoware also failed to correctly detect the vehicle shape at this moment.)
+
+Only **1 second before the collision**, Autoware was finally able to correct the prediction to a U-turn trajectory, as shown in the figure below.
+
+<img src="trace-analysis/assets/uturn-1000b.png" alt="Incorrect path" width="300"/>
+
+#### Swerve scenarios
+A similar issue was observed in swerve scenarios. In the swerve case `swerve-40-15-12`,
+**1 second prior to collision**, Autoware still failed to predict a realistic travel path for the oncoming vehicle. The predicted path neither formed a swerve shape nor aligned with any road lanes.
+
+<img src="trace-analysis/assets/swerve-1000b.png" alt="Incorrect path" width="550"/>
+
+
+Only **0.5 seconds before the collision**, Autoware corrected the prediction, generating two paths that followed the opposite lanes, as shown below.
+
+<img src="trace-analysis/assets/swerve-500b.png" alt="Incorrect path" width="550"/>
+
+#### Comparison with prior work
+This behavior contrasts with the cut-in, cut-out, and deceleration scenarios examined in prior work [1], where the NPC traveled in the same direction as the ego vehicle. 
+In those cases, Autoware at least predicted the correct *general direction of travel*, even if other aspects of the behavior (e.g., aggressiveness of lane changes) were not fully captured.
+By contrast, the oncoming traffic scenarios studied here (U-turns and swerves) reveal a more fundamental limitation: Autoware initially failed to recognize the traveling intent of oncoming vehicles. This, combined with weak acceleration, led to unavoidable collisions.
 
 ### Improved Performance with Shield
 
@@ -110,5 +150,10 @@ python client.py ADS-Safety-Benchmark-and-Shield/safety-benchmarks/Scripts/Uturn
 ```
 Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to <path-to-folder-to-save-traces> with incremental numbering.
 
-
-
+### References
+```
+[1] Duong Dinh Tran, Takashi Tomita and Toshiaki Aoki, 
+"Safety Analysis of Autonomous Driving Systems: 
+ A Simulation-Based Runtime Verification Approach," 
+in IEEE Transactions on Reliability, doi: 10.1109/TR.2025.3561455.
+```
