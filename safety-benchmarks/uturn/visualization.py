@@ -84,12 +84,12 @@ def visualize(ve,vo,dx0,rightmost_lane):
     anim_running = True
     current_frame = [0]
 
-    def update(i):
+    def update(frame):
         # Delay animation 4s
-        if i < 100:
-            frame = 0
-        else:
-            frame = i - 100
+        # if i < 100:
+        #     frame = 0
+        # else:
+        #     frame = i - 100
         current_frame[0] = frame
         veh1_patch.set_xy(veh1_vertices[frame])
         veh2_patch.set_xy(veh2_vertices[frame])
