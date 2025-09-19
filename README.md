@@ -27,7 +27,23 @@ Other tools used in this work are available in separate repositories:
   - A trace recorder that logs the state (position, velocity, etc.) of the ego vehicle and other objects during simulation, camera videos, ADS internal states (e.g., perceived objects and control commands), etc.
   - A shield for the control module that checks the safety of issued control commands. If a command is unsafe, the shield activates AEB.
 
-### Experiement with Autoware
+### Experiments with Autoware
+The results of experiments with the original Autoware are available in the [baseline-results](baseline-results) folder.
+
+#### U-Turn
+The experiments revealed two collision scenarios among 20 scenarios conducted.
+According to our safety reference benchmarks, these collisions were avoidable (i.e., they should not have occurred).
+The following is camera footage of one such collision (part of [uturn_sim7_footage.mp4](/baseline-results/u-turn/data/adjacent-lane/uturn_sim7_footage.mp4)).
+
+https://github.com/user-attachments/assets/15cfbcc4-beba-46d6-9c1a-2d15d0e9dd6b
+
+#### Swerve
+Out of 27 scenarios conducted, eight collisions were observed.
+The following is camera footage of one such collision (part of [swerve_sim6_footage.mp4](/baseline-results/swerve/data/vo-15/swerve_sim6_footage.mp4)).
+
+
+
+### Experiment Replication
 To reproduce the experiment results with Autoware, please follow the following steps.
 
 #### 1. Launch AWSIM-Labs
@@ -79,7 +95,5 @@ python client.py ADS-Safety-Benchmark-and-Shield/safety-benchmarks/Scripts/Uturn
 ```
 Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to <path-to-folder-to-save-traces> with incremental numbering.
 
-### Experiments with original Autoware
 
-### Experiments with shielding
 
