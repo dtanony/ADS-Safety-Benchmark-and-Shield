@@ -11,6 +11,8 @@ Trace data, camera videos, and input scripts specifying all scenarios are provid
 
 3. Experiement results with Autoware when integrating our safety shield (folder [shielding-results](shielding-results)).
 
+4. Tool for analyzing the recorded traces, e.g., collision status and minimum TTC. Check folder [trace-analysis](trace-analysis) for more details.
+
 \
 <img src="fig-tool-chain.png" alt="Tool chain" width="500"/>
 
