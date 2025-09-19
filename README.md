@@ -84,7 +84,15 @@ Only **0.5 seconds before the collision**, Autoware corrected the prediction, ge
 #### Comparison with prior work
 This behavior contrasts with the cut-in, cut-out, and deceleration scenarios examined in prior work [1], where the NPC traveled in the same direction as the ego vehicle. 
 In those cases, Autoware at least predicted the correct *general direction of travel*, even if other aspects of the behavior (e.g., aggressiveness of lane changes) were not fully captured.
+
 By contrast, the oncoming traffic scenarios studied here (U-turns and swerves) reveal a more fundamental limitation: Autoware initially failed to recognize the traveling intent of oncoming vehicles. This, combined with weak acceleration, led to unavoidable collisions.
+
+```
+[1] Duong Dinh Tran, Takashi Tomita and Toshiaki Aoki, 
+"Safety Analysis of Autonomous Driving Systems: 
+ A Simulation-Based Runtime Verification Approach," 
+in IEEE Transactions on Reliability, doi: 10.1109/TR.2025.3561455.
+```
 
 ### Improved Performance with Shield
 
@@ -149,11 +157,3 @@ For example, to execute U-turn scenarios, run the following command in another t
 python client.py ADS-Safety-Benchmark-and-Shield/safety-benchmarks/Scripts/Uturn/
 ```
 Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to <path-to-folder-to-save-traces> with incremental numbering.
-
-### References
-```
-[1] Duong Dinh Tran, Takashi Tomita and Toshiaki Aoki, 
-"Safety Analysis of Autonomous Driving Systems: 
- A Simulation-Based Runtime Verification Approach," 
-in IEEE Transactions on Reliability, doi: 10.1109/TR.2025.3561455.
-```
