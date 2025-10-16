@@ -138,7 +138,14 @@ Once succeeded, launch Autoware with the following commands in another terminal:
 
 ```bash
 cd ~/autoware  # Assume Autoware is installed in the home directory
+source install/setup.bash
 ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=<your-map-folder>/nishishinjuku_autoware_map launch_vehicle_interface:=true
+```
+
+Note that you need to use the absolute path for the map folder, don't use the ~ operator.
+
+```bash
+ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/your_username/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true
 ```
 
 #### 3. Launch AW-Runtime-Monitor
@@ -150,12 +157,34 @@ python main.py -o <path-to-folder-to-save-traces> -v false
 ```
 
 where the options `-v false` disable shielding. By default, it is enabled.
+Note that you need to source Autoware's setup file before launching the monitor.
+For more details about the tool usage, use `python main.py -h`.
+
+```bash
+$ python main.py -h
+usage: main.py [-h] [-o OUTPUT] [-f {json,yaml}] [-n NO_SIM] [-v {true,false}]
+
+Runtime Monitor for Autoware and AWSIM simulator. Adjust the component to record data by modifying
+file config.yaml
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Output trace file name (default: auto-generated with timestamp)
+  -f {json,yaml}, --format {json,yaml}
+                        either json or yaml (default: json)
+  -n NO_SIM, --no_sim NO_SIM
+                        Simulation number, use as suffix to the file name (default: 1)
+  -v {true,false}, --verify_control_cmd {true,false}
+                        To verify the safety of control commands, i.e., enable shielding (true or
+                        false, default: true)
+```
 
 #### 4. Launch AWSIM-Script client:
 Instructions to install and launch AWSIM-Script-Client are available in its [repository](https://github.com/dtanony/WSIM-Script-Client).
 
-For example, to execute U-turn scenarios, run the following command in another terminal:
+For example, to execute U-turn scenarios when the ego vehicle travels on the adjacent lane to the rightmost lane, run the following command in another terminal:
 ```bash
-python client.py ADS-Safety-Benchmark-and-Shield/safety-benchmarks/Scripts/Uturn/
+python client.py ADS-Safety-Benchmark-and-Shield/baseline-results/u-turn/scripts/adjacent-lane
 ```
-Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to <path-to-folder-to-save-traces> with incremental numbering.
+Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to folder `<path-to-folder-to-save-traces>` (provided when running AW-Runtime-Monitor) with incremental numbering.
