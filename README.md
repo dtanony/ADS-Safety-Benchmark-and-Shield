@@ -181,7 +181,7 @@ options:
 ```
 
 #### 4. Launch AWSIM-Script client:
-Instructions to install and launch AWSIM-Script-Client are available in its [repository](https://github.com/dtanony/WSIM-Script-Client).
+Instructions to install and launch AWSIM-Script-Client are available in its [repository](https://github.com/dtanony/AWSIM-Script-Client).
 
 For example, to execute U-turn scenarios when the ego vehicle travels on the adjacent lane to the rightmost lane, run the following command in another terminal:
 ```bash
