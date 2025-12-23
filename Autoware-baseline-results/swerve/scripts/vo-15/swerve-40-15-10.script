@@ -1,0 +1,16 @@
+spawnPos = "TrafficLane.205" at 40;
+goal = "TrafficLane.205" at 120;
+ve = 4.1667;
+
+route1 = [
+    "TrafficLane.205" max-velocity(ve),
+    // offset, side, lateral velocity, lateral wander, distance, dx0
+    swerve(53, "right", 1.0, 1.8, 2, 43)
+];
+
+npc1 = NPC("hatchback", spawnPos, goal, route1, 
+    [acceleration(8), aggressive-driving, delay-move(_)]);
+
+ego = Ego("Lexus RX450h 2015 Sample Sensor", "TrafficLane.268", "TrafficLane.214" at 26, [max-velocity(11.11111)]);
+
+run("Shinjuku", ego, [npc1]);
