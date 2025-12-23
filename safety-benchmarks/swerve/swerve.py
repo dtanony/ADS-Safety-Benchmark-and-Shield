@@ -3,14 +3,13 @@ import argparse
 from common import *
 from matplotlib import pyplot as plt
 
-LANE_WIDTH = 3.5
-NY = 1.8     # lateral offset of the swerve, see the paper
+# lateral offset of the swerve, see the paper
+NY = 1.8     
 SWERVE_DISTANCE = 2.0
 # assume a compact car
 WHEEL_BASE = 2.5
 
-npc_length, npc_width = 4.0, 1.9
-ego_length, ego_width = 4.8, 2.0
+env_config = awsim_env_config
 
 class SwerveEgo(Ego):
     def __init__(self, position, velocity, size=(2,5)):
@@ -136,23 +135,23 @@ class SwerveSimulation(Simulation):
 
     # Ego should detect a potential risk
     def should_detect_risk(self):
-        return self.npc.topright()[1] >= LANE_WIDTH / 2
+        return self.npc.topright()[1] >= env_config['lane_width'] / 2
 
     def should_activate_AEB(self):
         return False
 
 def single_sim_exec(dx0, ve, vo,vy, ny,swerve_distance):
     sim_step = 0.025
-    average_length = (ego_length + npc_length) / 2.0
+    average_length = (env_config['ego_length'] + env_config['npc_length']) / 2.0
 
     npc = SwerveNPC((dx0 + average_length, 0.0),
                     vo, vy,
-                    (npc_length, npc_width),
+                    (env_config['npc_length'], env_config['npc_width']),
                     ny, swerve_distance)
 
-    ego = SwerveEgo((0.0, LANE_WIDTH),
+    ego = SwerveEgo((0.0, env_config['lane_width']),
                     (ve,0.0),
-                    (ego_length, ego_width))
+                    (env_config['ego_length'], env_config['ego_width']))
 
     sim = SwerveSimulation(ego, npc, sim_step)
     while sim.time < 10:
@@ -177,7 +176,7 @@ def simulation(ve,vo):
 
     vy = 0.6
     while vy <= 1.61:
-        for dx in range(15, 56):
+        for dx in range(10, 56):
             not_collision = single_sim_exec(dx, ve, vo,vy, ny, swerve_distance)
             if not_collision:
                 nc_x.append(dx), nc_y.append(vy)
@@ -191,7 +190,7 @@ def simulation(ve,vo):
     shape = ","
     colors = ['r', 'g', 'orange']
 
-    plt.figure(dpi=200, figsize=(8,3.8))
+    plt.figure(dpi=200, figsize=(8,4))
 
     # plotting points as a scatter plot
     plt.scatter(fc_x, fc_y, label="collision", color=colors[0], marker=shape, s=20)

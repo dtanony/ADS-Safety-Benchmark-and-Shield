@@ -145,3 +145,31 @@ class Simulation:
         """
         if self.npc.speed <= 0:
             return
+
+# There are two environment configurations: CARLA and AWSIM-Labs
+# Depending on which environment is used, the parameters, e.g., lane width, median strip width, are set accordingly.
+# By default, we use AWSIM-Labs configuration.
+carla_env_config = {
+    'lane_width': 3.5,
+    'median_strip': 0.2,
+    'ego_length': 4.5,
+    'ego_width': 2.0,
+    'npc_length': 3.7,
+    'npc_width': 1.8
+}
+carla_town07_env_config = {
+    'lane_width': 3.2,
+    'median_strip': 0.0,
+    'ego_length': 4.5,
+    'ego_width': 2.0,
+    'npc_length': 3.7,
+    'npc_width': 1.8
+}
+awsim_env_config = {
+    'lane_width': 3.3,
+    'median_strip': 1.0,
+    'ego_length': 4.9,
+    'ego_width': 2.2,
+    'npc_length': 4.0,
+    'npc_width': 1.9
+}

@@ -7,10 +7,12 @@ import utils
 from pathlib import Path
 
 UTURN_KEY_STR = "uturn_point"
-UTURN_FILE_PATTERN = r"uturn_sim\d+\.json"
+UTURN_FILE_PATTERN = r"(?!.*\.meta\.json$)uturn_[A-Za-z0-9_]+\.json"
 
 SWERVE_KEY_STR = "swerve_point"
-SWERVE_FILE_PATTERN = r"swerve_sim\d+\.json"
+SWERVE_FILE_PATTERN = r"(?!.*\.meta\.json$)swerve_[A-Za-z0-9_]+\.json"
+WAYPOINTS_KEY_STR = "waypoints"
+
 
 def is_moving(twist_linear, threshold=1e-3):
     # Compute the magnitude of the velocity vector
@@ -95,8 +97,24 @@ def vehicle(kinematic, size, center):
     return Vehicle(size, pos, heading, center)
 
 def extract_vehicle_sizes(data):    
-    veh_sizes = data['groundtruth_size']['vehicle_sizes']
+    veh_sizes = data['groundtruth_size']
+    if 'vehicle_sizes' in data['groundtruth_size']:
+        veh_sizes = data['groundtruth_size']['vehicle_sizes']
     return veh_sizes
+
+def point_start_moment(data):
+    if SWERVE_KEY_STR in data['metadata']:
+        way_point = np.array((data['metadata'][SWERVE_KEY_STR]['x'],
+                               data['metadata'][SWERVE_KEY_STR]['y']))
+    elif UTURN_KEY_STR in data['metadata']:
+        way_point = np.array((data['metadata'][UTURN_KEY_STR]['x'],
+                               data['metadata'][UTURN_KEY_STR]['y']))
+    elif WAYPOINTS_KEY_STR in data['metadata']:
+        point_dict = data['metadata'][WAYPOINTS_KEY_STR][0]
+        way_point = np.array((point_dict["x"], point_dict["y"]))
+    else:
+        raise Exception("Cannot determine to point at which behavior (uturn, swerve, etc.) started.")
+    return way_point
 
 def behavior_start_moment(data, key_str):
     """
@@ -107,8 +125,7 @@ def behavior_start_moment(data, key_str):
     npc_size = (npc_details['size']['x'], npc_details['size']['y'])
     npc_center = (npc_details['center']['x'], npc_details['center']['y'])
 
-    way_point = np.array((data['metadata'][key_str]['x'],
-                   data['metadata'][key_str]['y']))
+    way_point = point_start_moment(data)
 
     re = 0
     min_dis = float('inf')

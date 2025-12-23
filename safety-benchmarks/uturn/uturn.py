@@ -3,15 +3,12 @@ import argparse
 from common import *
 from matplotlib import pyplot as plt
 
-LANE_WIDTH = 3.5
-MEDIAN_STRIP = 1.0
 # average of max angles of outer and inner wheels during U-Turn
 TURNING_WHEEL_ANGLE = np.pi / 6
 # assume a compact car
 WHEEL_BASE = 2.5
 
-npc_length, npc_width = 4.0, 1.9
-ego_length, ego_width = 4.8, 2.0
+env_config = awsim_env_config
 
 class UTurnEgo(Ego):
     def __init__(self, position, velocity, size=(2.0,5.0)):
@@ -87,7 +84,7 @@ class UTurnSimulation(Simulation):
 
     # Ego should detect a potential risk
     def should_detect_risk(self):
-        return self.npc.topright()[1] >= LANE_WIDTH / 2 + MEDIAN_STRIP
+        return self.npc.topright()[1] >= env_config['lane_width'] / 2 + env_config['median_strip']
 
     def should_activate_AEB(self):
         return False
@@ -95,19 +92,19 @@ class UTurnSimulation(Simulation):
 def single_sim_exec(dx0, ve, vo, turning_wheel_angle=TURNING_WHEEL_ANGLE,
                     wheelbase=WHEEL_BASE, rightmost_lane=True):
     sim_step = 0.02
-    average_length = (ego_length + npc_length) / 2
+    average_length = (env_config['ego_length'] + env_config['npc_length']) / 2
 
     npc = UTurnNPC((dx0 + average_length, 0),
                    (vo,0),
-                   (npc_length, npc_width),
+                   (env_config['npc_length'], env_config['npc_width']),
                     wheelbase, turning_wheel_angle)
 
-    ego_dy0 = MEDIAN_STRIP + LANE_WIDTH
+    ego_dy0 = env_config['median_strip'] + env_config['lane_width']
     if not rightmost_lane:
-        ego_dy0 += LANE_WIDTH
+        ego_dy0 += env_config['lane_width']
     ego = UTurnEgo((0, ego_dy0),
                    (ve,0),
-                   (ego_length, ego_width))
+                   (env_config['ego_length'], env_config['ego_width']))
 
     sim = UTurnSimulation(ego, npc, sim_step)
     while sim.time < 15:
@@ -127,9 +124,8 @@ def simulation(vo, rightmost_lane=True):
     # green points: no collisions
     nc_x, nc_y = [], []
 
-    ve = 15
-    while ve <= 50:
-        for dx in range(10, 51):
+    for ve in [14,20,25,30,35,40,45,50]:
+        for dx in range(9, 51):
             not_collision = single_sim_exec(dx, ve/3.6, vo, rightmost_lane=rightmost_lane)
             if not_collision:
                 nc_x.append(dx), nc_y.append(ve)
@@ -137,13 +133,12 @@ def simulation(vo, rightmost_lane=True):
                 fc_x.append(dx), fc_y.append(ve)
 
         print(f"Done ve = {ve}")
-        ve += 5
 
     # draw config
     shape = ","
     colors = ['r', 'g', 'orange']
 
-    plt.figure(dpi=200, figsize=(8,4))
+    plt.figure(dpi=200, figsize=(10,4.0))
 
     # plotting points as a scatter plot
     plt.scatter(fc_x, fc_y, label="Collision", color=colors[0], marker=shape, s=20)
@@ -156,7 +151,7 @@ def simulation(vo, rightmost_lane=True):
     plt.title(f'Ego: {"rightmost lane" if rightmost_lane else "adjacent lane"}, '
               f'vo = {(int)(vo * 3.6)}')
     # showing legend
-    plt.legend(bbox_to_anchor=(0.78, 0.6))
+    plt.legend(bbox_to_anchor=(0.82, 0.8))
     plt.show()
 
 def cli_parser():

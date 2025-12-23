@@ -5,7 +5,7 @@ This folder provides Python scripts for analyzing recorded traces.
 ### Usage
 The example below shows the analysis results for experiments with the baseline Autoware, when the ego vehicle travels in the lane adjacent to the rightmost lane:.
 ```bash
-$ python analysis.py ../baseline-results/u-turn/data/adjacent-lane/ -u km
+$ python analysis.py ../Autoware-baseline-results/u-turn/data/adjacent-lane/run1/ -u km
 
 ...
 
