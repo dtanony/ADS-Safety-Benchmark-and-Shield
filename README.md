@@ -43,7 +43,33 @@ The following is camera footage of a swerve collision scenario.
 https://github.com/user-attachments/assets/3325c90d-d321-4931-9670-fa37f9aac2a1
 
 #### CARLA Agents
-The following is camera footage of a U-turn collision scenario under control by TransFuser agent.
+The following is camera footage of a U-turn collision scenario under control of InterFuser agent, in which collision was prevented.
+
+
+https://github.com/user-attachments/assets/572c5385-894f-4546-9aeb-3b5fe41b3859
+
+
+
+However, when the ego vehicle changes to the adjacent lane, a collision occurs, as shown in the video below.
+
+
+https://github.com/user-attachments/assets/a42cedcd-e260-4bec-8f51-ed42be23c11b
+
+
+
+For the swerve scenarios, the following video demonstrates that LAV agent was able to avoid collisions.
+
+
+https://github.com/user-attachments/assets/26b66b10-3e39-47f0-84e8-0d97cb07c645
+
+
+
+Meanwhile, the following video shows that the TransFuser agent failed to avoid collision in a swerve scenario.
+
+
+https://github.com/user-attachments/assets/8c56b890-8410-44e4-a809-f6d99df9392a
+
+
 
 
 ### Autoware Collision Analysis
