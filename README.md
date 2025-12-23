@@ -91,4 +91,5 @@ Only **0.8 seconds before the collision**, Autoware corrected the prediction, ge
 ### Experiment Replication
 To replicate the Autoware experiments, please follow the instructions in the [Autoware-baseline-results](Autoware-baseline-results#experiment-reproduction) folder.
 
-To replicate the experiments in CARLA simulator with the six learning-based agents, please follow the instructions in the [CARLA-agents-results](CARLA-agents-results/README.md) folder.
+The CARLA recorded log files on the experiments with the six AD agents can be replayed directly in CARLA simulator.
+Instruction to do it as well as experiment replication steps are provided in the [CARLA-agents-results](CARLA-agents-results) folder. 
