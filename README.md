@@ -1,190 +1,94 @@
-## Benchmark-Driven Safety Evaluation and Shielding of Autonomous Driving Systems
+## Safety Reference Benchmarks with Avoidability Criteria for Evaluating Autonomous Driving Systems
+
+### Table of Contents
+* [Repository Overview](#repository-overview)
+* [Simulation Demonstrations](#simulation-demonstrations)
+  * [Autoware](#autoware)
+  * [CARLA Agents](#carla-agents)
+* [Autoware Collision Analysis](#autoware-collision-analysis)
+  * [U-turn scenarios](#u-turn-scenarios)
+  * [Swerve scenarios](#swerve-scenarios)
+* [Experiment Replication](#experiment-replication)
 
 ### Repository Overview
-This repository contains the code and data for the paper "Benchmark-Driven Safety Evaluation and Shielding of Autonomous Driving Systems."
+This repository contains the code and data for the paper "Safety Reference Benchmarks with Avoidability Criteria for Evaluating Autonomous Driving Systems."
 This repository mainly includes:
 
 1. Safety reference benchmarks to evaluate ADSs for oncoming traffic scenarios. Check folder [safety-benchmarks](safety-benchmarks) for more details. Code to reproduce the benchmarks and animations visualizing the movements of vehicles for each concrete scenario are provided in the folder.
 
-2. Experiment results of evaluating [Autoware version 0.41.2](https://github.com/dtanony/Autoware0412) (released February 20, 2025) against our safety reference benchmarks (folder [baseline-results](baseline-results)).
-Trace data, camera videos, and input scripts specifying all scenarios are provided in the folder.
+2. Experiment results on [Autoware version 0.41.2](https://github.com/dtanony/Autoware0412) (released February 20, 2025) against our safety reference benchmarks (folder [Autoware-baseline-results](Autoware-baseline-results)).
+Trace data, camera videos, and input scripts to simulate all scenarios are provided in the folder.
 
-3. Experiement results with Autoware when integrating our safety shield (folder [shielding-results](shielding-results)).
+3. Experiment results on six end-to-end learning-based autonomous driving agents (folder [CARLA-agents-results](CARLA-agents-results)). Replayable log files, JSON trace data, and guide to reproduce the experiments with CARLA are provided in the folder.
 
-4. Tool for analyzing the recorded traces, e.g., collision status and minimum TTC. Check folder [trace-analysis](trace-analysis) for more details.
+4. Experiment results on Autoware when integrating with a controller safety shield (folder [Autoware-shielding-results](Autoware-shielding-results)).
+
+
+5. Tool for analyzing the recorded traces, e.g., collision status and minimum TTC. Check folder [trace-analysis](trace-analysis) for more details.
 
 \
 <img src="fig-tool-chain.png" alt="Tool chain" width="500"/>
 
-### Tools Used
-Other tools used in this work are available in separate repositories:
+### Simulation Demonstrations
 
-- Extended Autoware is available [here](https://github.com/dtanony/autoware0412). This extended version supports activating AEB on demand by sending service requests to it.
-
-- Extended AWSIM-Labs simulator is available [here](https://github.com/dtanony/AWSIM-Labs). This extended version supports simulating U-turn and swerve behaviors of vehicles, and allows AWSIM-Script clients to  issue simulation actions for traffic participants dynamically.
-
-- AWSIM-Script client library is available [here](https://github.com/dtanony/AWSIM-Script-Client). This library provides Python APIs to interact with the AWSIM-Labs simulator.
-
-- AW-Runtime-Monitor is available [here](https://github.com/dtanony/AW-Runtime-Monitor). This monitor essentially consists of two subcomponents:
-  - A trace recorder that logs the state (position, velocity, etc.) of the ego vehicle and other objects during simulation, camera videos, ADS internal states (e.g., perceived objects and control commands), etc.
-  - A shield for the control module that checks the safety of issued control commands. If a command is unsafe, the shield activates AEB.
-
-### Experiments with Autoware
-The results of experiments with the original Autoware are available in the [baseline-results](baseline-results) folder.
-
-#### U-Turn
-The experiments revealed two collision scenarios among 20 scenarios conducted.
-According to our safety reference benchmarks, these collisions were avoidable (i.e., they should not have occurred).
-The following is camera footage of one such collision (part of [uturn_sim7_footage.mp4](/baseline-results/u-turn/data/adjacent-lane/uturn_sim7_footage.mp4)).
+#### Autoware
+<!-- #### U-Turn -->
+The following is camera footage of a U-turn collision scenario.
 
 https://github.com/user-attachments/assets/15cfbcc4-beba-46d6-9c1a-2d15d0e9dd6b
 
-#### Swerve
-Out of 27 scenarios conducted, eight collisions were observed.
-The following is camera footage of one such collision (part of [swerve_sim6_footage.mp4](/baseline-results/swerve/data/vo-15/swerve_sim6_footage.mp4)).
-
+<!-- #### Swerve -->
+The following is camera footage of a swerve collision scenario.
 
 https://github.com/user-attachments/assets/3325c90d-d321-4931-9670-fa37f9aac2a1
 
-As can be observed from the video, the braking applied was weak, even in the final moments.
+#### CARLA Agents
+The following is camera footage of a U-turn collision scenario under control by TransFuser agent.
 
-### Collision Analysis
-Analyzing the traces of the collision cases, we found that perception accuracy and control actions are the two factors leading to collisions.
-Regarding the perception inaccuracy, Autoware often struggled to correctly anticipate the future travel paths of oncoming vehicles.
+
+### Autoware Collision Analysis
+Analyzing the traces of Autoware collision runs, we found that perception inaccuracy
+could be a primary factor leading to these collisions.
+Autoware often struggled to correctly anticipate the future travel paths of oncoming vehicles.
 
 #### U-turn scenarios
-For example, consider the U-turn scenario `uturn-30-15-1` with the following information:
-| **Script file** | **Trace file** | **AV Speed** | **NPC Speed** |
-|-----------------|----------------|--------------|---------------|
-| uturn-35-10-1   | uturn_sim7     | 35           | 10            |
+For example, consider the following U-turn scenario:
+| **Script file** | **Lane** | **Trace file** | **Video** | **Ego Speed** | **NPC Speed** |
+|-----------------|----------|----------------|-----------|---------------|---------------|
+| [uturn-35-10.script](Autoware-baseline-results/u-turn/scripts/adjacent-lane/uturn-35-10.script) | Adjacent | [uturn_sim9.json](Autoware-baseline-results/u-turn/data/adjacent-lane/run3/uturn_sim9.json) | [uturn_sim9_footage.mp4](Autoware-baseline-results/u-turn/data/adjacent-lane/run3/uturn_sim9_footage.mp4) | 35            | 10            |
 
-A collision occurred in this scenario. **1.5 seconds prior to impact**, 
+A collision occurred in this scenario. **1.7 seconds prior to impact**, 
 Autoware still failed to predict a realistic travel path for the oncoming vehicle. 
 As shown below, the predicted path lacked a U-turn shape and instead followed a diagonal trajectory crossing multiple lanes, eventually leaving the road.
 
-<img src="trace-analysis/assets/uturn-1500b.png" alt="Incorrect path" width="300"/>
+<img src="trace-analysis/assets/uturn-fail.png" alt="Incorrect path" width="300"/>
 
 The green square represents the ego vehicle (with the arrow denoting its direction of travel).
 The blue polygon represents the perceived NPC, while the orange line denotes the predicted travel path.
 (As can be seen, Autoware also failed to correctly detect the vehicle shape at this moment.)
 
-Only **1 second before the collision**, Autoware was finally able to correct the prediction to a U-turn trajectory, as shown in the figure below.
+Only **1 second later**, that is, **0.7 seconds before the collision**, Autoware was finally able to correct the prediction to a U-turn trajectory, as shown in the figure below.
 
-<img src="trace-analysis/assets/uturn-1000b.png" alt="Incorrect path" width="300"/>
+<img src="trace-analysis/assets/uturn-correct.png" alt="Incorrect path" width="300"/>
 
 #### Swerve scenarios
-A similar issue was observed in swerve scenarios. In the swerve case `swerve-40-15-12`,
-**1 second prior to collision**, Autoware still failed to predict a realistic travel path for the oncoming vehicle. The predicted path neither formed a swerve shape nor aligned with any road lanes.
+A similar issue was observed in swerve scenarios. 
+Let's consider the following swerve scenario:
+| **Script file** | **Trace file** | **Video** | **Ego Speed** | **NPC Speed** | **Lateral Velocity** |
+|-----------------|----------------|-----------|---------------|---------------|----------------------|
+| [swerve-30-15-10.script](Autoware-baseline-results/swerve/scripts/vo-15/swerve-30-15-10.script) | [swerve_sim7.json](Autoware-baseline-results/swerve/data/vo-15/run1/swerve_sim7.json) | [swerve_sim7_footage.mp4](Autoware-baseline-results/swerve/data/vo-15/run1/swerve_sim7_footage.mp4) | 30            | 15            | 1.0                  |
 
-<img src="trace-analysis/assets/swerve-1000b.png" alt="Incorrect path" width="550"/>
+In this run, a collision also occurred.
+**1 .5 seconds prior to collision**, Autoware still failed to predict a realistic travel path for the oncoming vehicle. The predicted path neither formed a swerve shape nor aligned with any road lanes.
 
-
-Only **0.5 seconds before the collision**, Autoware corrected the prediction, generating two paths that followed the opposite lanes, as shown below.
-
-<img src="trace-analysis/assets/swerve-500b.png" alt="Incorrect path" width="550"/>
-
-#### Comparison with prior work
-This behavior contrasts with the cut-in, cut-out, and deceleration scenarios examined in prior work [1], where the NPC traveled in the same direction as the ego vehicle. 
-In those cases, Autoware at least predicted the correct *general direction of travel*, even if other aspects of the behavior (e.g., aggressiveness of lane changes) were not fully captured.
-
-By contrast, the oncoming traffic scenarios studied here (U-turns and swerves) reveal a more fundamental limitation: Autoware initially failed to recognize the traveling intent of oncoming vehicles. This, combined with weak acceleration, led to unavoidable collisions.
-
-```
-[1] Duong Dinh Tran, Takashi Tomita and Toshiaki Aoki, 
-"Safety Analysis of Autonomous Driving Systems: 
- A Simulation-Based Runtime Verification Approach," 
-in IEEE Transactions on Reliability, doi: 10.1109/TR.2025.3561455.
-```
-
-### Improved Performance with Shield
-
-Experiments demonstrated that integrating Autoware with the shield successfully prevented all collisions observed in the baseline experiments.
-In the collision U-turn scenario shown above, the following camera footage illustrates the non-collision outcome with the shield enabled (part of [uturn_sim7_footage.mp4](/shielding-results/u-turn/data/adjacent-lane/uturn_sim7_footage.mp4)).
+<img src="trace-analysis/assets/swerve-fail.png" alt="Incorrect path" width="550"/>
 
 
+Only **0.8 seconds before the collision**, Autoware corrected the prediction, generating two paths that followed the opposite lanes, as shown below.
 
-https://github.com/user-attachments/assets/306dcf24-c48b-410e-94b4-f374d348e787
-
-
-As can be seen, the collision was avoided.
+<img src="trace-analysis/assets/swerve-correct.png" alt="Incorrect path" width="550"/>
 
 ### Experiment Replication
-To reproduce the experiment results with Autoware, please follow the following steps.
+To replicate the Autoware experiments, please follow the instructions in the [Autoware-baseline-results](Autoware-baseline-results#experiment-reproduction) folder.
 
-#### 1. Launch AWSIM-Labs
-Instructions to launch AWSIM-Labs are provided in its [repository](https://github.com/dtanony/AWSIM-Labs).
-First, complete the [Prerequisite Setup](https://github.com/dtanony/AWSIM-Labs?tab=readme-ov-file#prerequisite-setup)
-and [Driver Installation](https://github.com/dtanony/AWSIM-Labs?tab=readme-ov-file#driver-installation-skip-if-already-installed).
-
-To launch AWSIM-Labs,
-we recommend to use the binary release, which can be downloaded from
-[here](https://github.com/dtanony/AWSIM-Labs/releases/download/v1.0/awsim_labs.zip).
-Unzip it and launch the simulator using:
-
-```bash
-./awsim_labs.x86_64 -noise false
-```
-
-Note that the option `-noise false` disables Gaussian noise in the simulated data from LiDAR sensors.
-By default, noise is enabled.
-
-#### 2. Launch Autoware
-Instructions to install and launch Autoware are provided in its [repository](https://github.com/dtanony/autoware0412).
-To run an end-to-end Autoware simulation with the AWSIM-Labs simulator, a PC equipped with a GPU is required. 
-Because of the specific GPU driver and CUDA dependencies, a pre-built binary release of Autoware is not available for this setup. 
-Therefore, the only option is to build Autoware from source.
-Follow the provided steps there to install it.
-Once succeeded, launch Autoware with the following commands in another terminal:
-
-```bash
-cd ~/autoware  # Assume Autoware is installed in the home directory
-source install/setup.bash
-ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=<your-map-folder>/nishishinjuku_autoware_map launch_vehicle_interface:=true
-```
-
-Note that you need to use the absolute path for the map folder, don't use the ~ operator.
-
-```bash
-ros2 launch autoware_launch e2e_simulator.launch.xml vehicle_model:=awsim_labs_vehicle sensor_model:=awsim_labs_sensor_kit map_path:=/home/your_username/autoware_map/nishishinjuku_autoware_map launch_vehicle_interface:=true
-```
-
-#### 3. Launch AW-Runtime-Monitor
-Instructions to install and launch AW-Runtime-Monitor are available in its [repository](https://github.com/dtanony/AW-Runtime-Monitor).
-
-After launching Autoware and AWSIM-Labs and they are connected, run the following command in another terminal:
-```bash
-python main.py -o <path-to-folder-to-save-traces> -v false
-```
-
-where the options `-v false` disable shielding. By default, it is enabled.
-Note that you need to source Autoware's setup file before launching the monitor.
-For more details about the tool usage, use `python main.py -h`.
-
-```bash
-$ python main.py -h
-usage: main.py [-h] [-o OUTPUT] [-f {json,yaml}] [-n NO_SIM] [-v {true,false}]
-
-Runtime Monitor for Autoware and AWSIM simulator. Adjust the component to record data by modifying
-file config.yaml
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        Output trace file name (default: auto-generated with timestamp)
-  -f {json,yaml}, --format {json,yaml}
-                        either json or yaml (default: json)
-  -n NO_SIM, --no_sim NO_SIM
-                        Simulation number, use as suffix to the file name (default: 1)
-  -v {true,false}, --verify_control_cmd {true,false}
-                        To verify the safety of control commands, i.e., enable shielding (true or
-                        false, default: true)
-```
-
-#### 4. Launch AWSIM-Script client:
-Instructions to install and launch AWSIM-Script-Client are available in its [repository](https://github.com/dtanony/AWSIM-Script-Client).
-
-For example, to execute U-turn scenarios when the ego vehicle travels on the adjacent lane to the rightmost lane, run the following command in another terminal:
-```bash
-python client.py ADS-Safety-Benchmark-and-Shield/baseline-results/u-turn/scripts/adjacent-lane
-```
-Each scenario in the folder will be executed sequentially. When a scenario terminates (i.e., when the ego vehicle reaches its goal), the recorded data will be saved to folder `<path-to-folder-to-save-traces>` (provided when running AW-Runtime-Monitor) with incremental numbering.
+To replicate the experiments in CARLA simulator with the six learning-based agents, please follow the instructions in the [CARLA-agents-results](CARLA-agents-results/README.md) folder.

@@ -1,3 +1,5 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
-*.json filter=lfs diff=lfs merge=lfs -text
+*.json -filter -diff -merge
+Autoware-baseline-results/**/*.json filter=lfs diff=lfs merge=lfs -text
+Autoware-shielding-results/**/*.json filter=lfs diff=lfs merge=lfs -text
 *.meta.json -filter -diff -merge
